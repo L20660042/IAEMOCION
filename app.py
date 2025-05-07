@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from fer import FER
+from flask_cors import CORS
 import cv2
 import numpy as np
 

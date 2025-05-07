@@ -3,9 +3,11 @@ from fer import FER
 from flask_cors import CORS
 import cv2
 import numpy as np
+import os
 
 app = Flask(__name__)
 CORS(app, origins=["https://l20660042.github.io"])
+
 detector = FER(mtcnn=True)
 
 @app.route("/")
@@ -41,3 +43,8 @@ def upload_emotion():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# Agrega esto para que escuche en el puerto dinámico de Railway
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host="0.0.0.0", port=port)

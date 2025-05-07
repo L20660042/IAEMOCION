@@ -6,3 +6,5 @@ keras
 tensorflow
 matplotlib
 pandas
+flask-cors
+numpy

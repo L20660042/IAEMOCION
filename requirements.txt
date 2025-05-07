@@ -1,4 +1,8 @@
-Flask==2.0.1
-fer==21.0.6
-Pillow
+flask
 gunicorn
+fer==21.0.6
+opencv-python
+keras
+tensorflow
+matplotlib
+pandas

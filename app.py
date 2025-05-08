@@ -6,9 +6,11 @@ import numpy as np
 import os
 
 app = Flask(__name__)
-CORS(app, origins=["https://l20660042.github.io"])
 
+# CORS para permitir solicitudes desde tu frontend
+CORS(app, resources={r"/*": {"origins": "https://l20660042.github.io"}})
 
+# Detector de emociones
 detector = FER(mtcnn=True)
 
 @app.route("/")
@@ -45,7 +47,7 @@ def upload_emotion():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Agrega esto para que escuche en el puerto dinámico de Railway
+# Escuchar en puerto que asigna Railway (por defecto 8000)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)

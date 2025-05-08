@@ -1,53 +1,72 @@
 from flask import Flask, request, jsonify
-from fer import FER
-from flask_cors import CORS
-import cv2
 import numpy as np
-import os
+from PIL import Image
+import io
+import spacy
 
 app = Flask(__name__)
+nlp = spacy.load("es_core_news_sm")
 
-# CORS para permitir solicitudes desde tu frontend
-CORS(app, resources={r"/*": {"origins": "https://l20660042.github.io"}})
-
-# Detector de emociones
-detector = FER(mtcnn=True)
-
-@app.route("/")
-def index():
-    return "IAEmocion API online."
-
-@app.route("/emotion/upload", methods=["POST"])
-def upload_emotion():
+@app.route('/analyze/drawing', methods=['POST'])
+def analyze_drawing():
     try:
         if 'image' not in request.files:
-            return jsonify({"error": "No image uploaded"}), 400
-
-        image_file = request.files['image']
-        user = request.form.get("user", "anonymous")
-
-        # Leer imagen como numpy array
-        img_bytes = image_file.read()
-        npimg = np.frombuffer(img_bytes, np.uint8)
-        img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
-
-        # Detectar emociones
-        result = detector.detect_emotions(img)
-        if not result:
-            return jsonify({"error": "No face detected"}), 400
-
-        top_emotion = max(result[0]["emotions"], key=result[0]["emotions"].get)
-
+            return jsonify({"error": "No image provided"}), 400
+        
+        image = request.files['image'].read()
+        user = request.form.get('user', 'anonymous')
+        
+        # Simulación de análisis de emociones
+        emotions = ["feliz", "triste", "enojado", "sorprendido"]
+        emotion_idx = hash(image) % len(emotions)
+        confidence = 0.7 + (hash(image) % 30) / 100
+        
         return jsonify({
-            "emotion": top_emotion,
-            "details": result[0]["emotions"],
-            "user": user
+            "user": user,
+            "emotion": emotions[emotion_idx],
+            "confidence": confidence,
+            "details": {
+                "model": "simulated",
+                "emotion_distribution": {
+                    "feliz": 0.25,
+                    "triste": 0.25,
+                    "enojado": 0.25,
+                    "sorprendido": 0.25
+                }
+            }
         })
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Escuchar en puerto que asigna Railway (por defecto 8000)
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    app.run(host="0.0.0.0", port=port)
+@app.route('/analyze/text', methods=['POST'])
+def analyze_text():
+    try:
+        text = request.form.get('text', '')
+        user = request.form.get('user', 'anonymous')
+        doc = nlp(text)
+        
+        # Análisis simplificado
+        positive = sum(1 for token in doc if token.lemma_ in ["feliz", "contento", "alegre"])
+        negative = sum(1 for token in doc if token.lemma_ in ["triste", "enojado", "molesto"])
+        
+        sentiment = "neutral"
+        if positive > negative:
+            sentiment = "positive"
+        elif negative > positive:
+            sentiment = "negative"
+        
+        return jsonify({
+            "user": user,
+            "sentiment": sentiment,
+            "spellingErrors": [],
+            "details": {
+                "tokens": [token.text for token in doc],
+                "lemmas": [token.lemma_ for token in doc],
+                "posTags": [token.pos_ for token in doc]
+            }
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

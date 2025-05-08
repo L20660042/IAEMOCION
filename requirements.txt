@@ -1,11 +1,6 @@
-flask
-gunicorn
-fer==21.0.6
-opencv-python
-keras
-tensorflow
-matplotlib
-pandas
-flask-cors
-numpy
-opencv-python-headless
+flask==2.0.1
+spacy==3.0.6
+python-dotenv==0.19.0
+https://github.com/explosion/spacy-models/releases/download/es_core_news_sm-3.0.0/es_core_news_sm-3.0.0.tar.gz
+pillow==8.3.1
+numpy==1.21.2

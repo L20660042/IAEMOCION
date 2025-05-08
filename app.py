@@ -8,6 +8,7 @@ import os
 app = Flask(__name__)
 CORS(app, origins=["https://l20660042.github.io"])
 
+
 detector = FER(mtcnn=True)
 
 @app.route("/")

@@ -8,3 +8,4 @@ matplotlib
 pandas
 flask-cors
 numpy
+opencv-python-headless
